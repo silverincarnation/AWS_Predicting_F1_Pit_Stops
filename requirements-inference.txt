@@ -1,0 +1,17 @@
+# F1 Pit Stop — Inference Service Dependencies
+# Kept minimal vs requirements.txt (no scikit-learn, matplotlib, pyarrow, etc.)
+
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+pydantic==2.10.3
+
+boto3==1.35.86
+lightgbm>=4.6
+pandas==2.2.3
+numpy==1.26.4
+
+scikit-learn>=1.6
+scipy>=1.13
+
+pyyaml==6.0.2
+python-dotenv==1.0.1

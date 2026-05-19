@@ -1,0 +1,60 @@
+# F1 Pit Stop Prediction — Project Configuration
+
+# AWS & S3
+aws:
+  region: us-east-1          # Override via AWS_REGION in .env if needed
+
+s3:
+  bucket: f1-pitstop-bucket  # Override via S3_BUCKET in .env
+  raw_prefix: raw/
+  processed_prefix: processed/
+  models_prefix: models/
+  logs_prefix: logs/
+
+# Dataset & Reproducibility
+training:
+  seed: 42
+  target: PitNextLap
+  test_size: 0.2             # Fraction held out as test set
+  n_splits: 5                # StratifiedKFold folds for CV evaluation
+  eval_metric: roc_auc       # Primary metric: roc_auc | f1 | accuracy
+
+# Logistic Regression Hyperparameters
+# Input : X_train_lr / X_test_lr  (StandardScaler already applied)
+logistic_regression:
+  penalty: l2
+  C: 1.0                     # Inverse regularisation strength (smaller = stronger)
+  solver: lbfgs              # Efficient for binary classification + l2
+  max_iter: 1000
+  class_weight: balanced     # Compensates for ~10 % positive-class imbalance
+  random_state: 42
+  n_jobs: -1
+
+# LightGBM Hyperparameters
+# Input : X_train_lgbm / X_test_lgbm  (no scaling needed for tree models)
+lightgbm:
+  objective: binary
+  metric: auc
+  boosting_type: gbdt
+  n_estimators: 1000
+  learning_rate: 0.05
+  num_leaves: 127            # Controls model complexity; 2^max_depth - 1 guideline
+  max_depth: -1              # -1 = no depth limit (controlled by num_leaves)
+  min_child_samples: 20      # Min samples in a leaf — prevents overfitting on rare classes
+  feature_fraction: 0.8      # Subsample ratio of features per tree (colsample)
+  bagging_fraction: 0.8      # Subsample ratio of training data per iteration
+  bagging_freq: 1            # Enable bagging every iteration
+  reg_alpha: 0.1             # L1 regularisation
+  reg_lambda: 1.0            # L2 regularisation
+  is_unbalance: true         # Handles class imbalance automatically (alternative to scale_pos_weight)
+  early_stopping_rounds: 50  # Stop if validation metric does not improve for N rounds
+  verbose: -1                # Suppress LightGBM training output
+  n_jobs: -1
+  random_state: 42
+
+# Logging
+logging:
+  level: INFO                # DEBUG | INFO | WARNING | ERROR
+  format: "%(asctime)s  %(levelname)-8s  %(name)s — %(message)s"
+  datefmt: "%Y-%m-%d %H:%M:%S"
+  log_to_s3: true            # Also upload run log to s3://<bucket>/logs/
