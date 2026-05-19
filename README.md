@@ -2,7 +2,11 @@
 
 Predicts whether a Formula 1 car should pit on the next lap, using race telemetry data and two machine learning models (LightGBM and Logistic Regression) deployed as a REST API on AWS ECS Fargate, served through a React web application via CloudFront.
 
----
+This project is based on the Kaggle competition:
+
+- [Playground Series S6E5 — Predict Pit Stops](https://www.kaggle.com/competitions/playground-series-s6e5)
+
+in order to demonstrate my AWS knowledge.
 
 ## Table of Contents
 
