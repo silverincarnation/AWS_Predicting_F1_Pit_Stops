@@ -71,6 +71,7 @@ CloudFront Distribution
       ▼
 React + Vite Frontend (browser)
 ```
+![AWS Architecture](f1_aws_architecture_final.svg)
 
 ---
 
