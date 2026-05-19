@@ -1,0 +1,44 @@
+# =============================================================================
+# F1 Pit Stop — Inference Service Image
+# =============================================================================
+# Separate from the training image: no scikit-learn, no matplotlib, no pyarrow.
+# Just what FastAPI + LightGBM need to serve predictions.
+#
+# Build:
+#   docker build -f Dockerfile.inference -t f1-inference .
+#
+# Run locally (loads model from S3):
+#   docker run --rm --env-file .env -p 8080:8080 f1-inference
+# =============================================================================
+
+FROM python:3.11-slim
+
+# LightGBM needs libgomp for parallel tree building
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        libgomp1 \
+        curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Install Python dependencies first (layer-cached unless requirements change)
+COPY requirements-inference.txt .
+RUN pip install --no-cache-dir -r requirements-inference.txt
+
+# Copy application files — NOT .env (secrets come from ECS Task IAM role / env vars)
+COPY app.py    .
+COPY config.yaml .
+
+# Non-root user for security best practice
+RUN useradd -m appuser && chown -R appuser /app
+USER appuser
+
+EXPOSE 8080
+
+# Use 2 Uvicorn workers; ECS task is sized at 1 vCPU so 2 keeps it saturated
+# without thrashing. Increase workers if you scale the task to 2+ vCPU.
+CMD ["uvicorn", "app:app", \
+     "--host", "0.0.0.0", \
+     "--port", "8080", \
+     "--workers", "2", \
+     "--log-level", "info"]
