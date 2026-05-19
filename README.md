@@ -5,6 +5,7 @@ Predicts whether a Formula 1 car should pit on the next lap, using race telemetr
 This project is based on the Kaggle competition:
 
 - [Playground Series S6E5 — Predict Pit Stops](https://www.kaggle.com/competitions/playground-series-s6e5)
+- Our AWS [frontend](https://d3vlnh9r716hv1.cloudfront.net/) 
 
 in order to demonstrate my AWS knowledge.
 
